@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=841, height=1530">
+  <title>Counter</title>
+  <style>
+    /* Global styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      transition: background-color 0.5s, color 0.5s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    /* Background Animation */
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, #ff9f43, #4CAF50, #3498db, #e74c3c);
+      background-size: 600% 600%;
+      z-index: -1;
+      animation: gradientAnimation 10s ease infinite;
+    }
+
+    @keyframes gradientAnimation {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Container styles */
+    .container {
+      text-align: center;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      max-width: 700px;
+      width: 100%;
+    }
+
+    #counter {
+      font-size: 4em;
+      margin-bottom: 20px;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    .button {
+      background-color: #ff9f43;
+      color: #fff;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 30px;
+      font-size: 1.2em;
+      cursor: pointer;
+      margin-bottom: 20px;
+      transition: transform 0.2s, background-color 0.3s, box-shadow 0.3s;
+      box-shadow: 0 4px 15px rgba(255, 159, 67, 0.5);
+    }
+
+    .button:hover {
+      transform: scale(1.05);
+      background-color: #ff7f11;
+      box-shadow: 0 6px 20px rgba(255, 127, 17, 0.7);
+    }
+
+    .button:active {
+      transform: scale(0.95);
+      box-shadow: 0 2px 10px rgba(255, 159, 67, 0.5);
+    }
+
+    .theme-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: #ff9f43;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 30px;
+      font-size: 1.2em;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .theme-button:hover {
+      transform: scale(1.05);
+      background-color: #ff7f11;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 20px;
+      background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 30px;
+      margin-bottom: 20px;
+      overflow: hidden;
+      box-shadow: inset 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .progress-bar-fill {
+      width: 100%;
+      height: 20px;
+      background-color: #4CAF50;
+      border-radius: 30px;
+      transition: width 0.5s ease-in-out, background-color 0.5s ease-in-out;
+    }
+
+    #progress-text {
+      font-size: 1.5em;
+      margin-top: 10px;
+      transition: color 0.5s ease-in-out;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    /* Dark theme styles */
+    .dark-theme {
+      color: #F0F0F0;
+    }
+
+    .dark-theme .container {
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .dark-theme .button, .dark-theme .theme-button {
+      background-color: #3498db;
+      box-shadow: 0 4px 15px rgba(52, 152, 219, 0.5);
+    }
+
+    .dark-theme .button:hover, .dark-theme .theme-button:hover {
+      background-color: #2980b9;
+      box-shadow: 0 6px 20px rgba(41, 128, 185, 0.7);
+    }
+
+    .dark-theme .progress-bar {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .dark-theme .progress-bar-fill {
+      background-color: #8e44ad;
+    }
+
+    /* Light theme styles */
+    .light-theme {
+      color: #333;
+    }
+
+    .light-theme .container {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .light-theme .button, .light-theme .theme-button {
+      background-color: #27ae60;
+      box-shadow: 0 4px 15px rgba(39, 174, 96, 0.5);
+    }
+
+    .light-theme .button:hover, .light-theme .theme-button:hover {
+      background-color: #2ecc71;
+      box-shadow: 0 6px 20px rgba(46, 204, 113, 0.7);
+    }
+
+    .light-theme .progress-bar {
+      background-color: rgba(0, 0, 0, 0.2);
+    }
+
+    .light-theme .progress-bar-fill {
+      background-color: #e74c3c;
+    }
+
+    /* Animation Keyframes */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-button" onclick="toggleTheme()">
+    <span class="sun" style="display: block;">☀️</span>
+    <span class="moon" style="display: none;">🌕</span>
+  </button>
+  <div class="container">
+    <div id="counter">0</div>
+    <button class="button" id="increment-button" onclick="incrementCounter()">+</button>
+    <div class="progress-bar">
+      <div class="progress-bar-fill" id="progress-bar-fill"></div>
+    </div>
+    <div id="progress-text">100/100</div>
+  </div>
+
+  <script>
+    let count = parseInt(localStorage.getItem('count')) || 0;
+    let progress = parseInt(localStorage.getItem('progress')) || 100;
+    let theme = localStorage.getItem('theme') || 'dark';
+    let timerInterval = null;
+
+    document.getElementById("counter").textContent = count;
+    document.getElementById("progress-bar-fill").style.width = `${progress}%`;
+    document.getElementById("progress-text").textContent = `${progress}/100`;
+
+    if (theme === 'light') {
+      document.body.classList.add('light-theme');
+      document.querySelector('.theme-button .sun').style.display = 'none';
+      document.querySelector('.theme-button .moon').style.display = 'block';
+    } else {
+      document.body.classList.add('dark-theme');
+      document.querySelector('.theme-button .sun').style.display = 'block';
+      document.querySelector('.theme-button .moon').style.display = 'none';
+    }
+
+    function incrementCounter() {
+      if (progress > 0) {
+        count++;
+        progress--;
+        updateUI();
+
+        if (progress < 99 && !timerInterval) {
+          startTimer();
+        }
+      }
+
+      localStorage.setItem('count', count);
+      localStorage.setItem('progress', progress);
+    }
+
+    function updateUI() {
+      document.getElementById("counter").textContent = count;
+      document.getElementById("progress-bar-fill").style.width = `${progress}%`;
+      document.getElementById("progress-text").textContent = `${progress}/100`;
+
+      const progressBarFill = document.getElementById("progress-bar-fill");
+      if (progress > 70) {
+        progressBarFill.style.backgroundColor = "#4CAF50"; // Green
+      } else if (progress > 30) {
+        progressBarFill.style.backgroundColor = "#f1c40f"; // Yellow
+      } else {
+        progressBarFill.style.backgroundColor = "#e74c3c"; // Red
+      }
+
+      const incrementButton = document.getElementById("increment-button");
+      if (progress === 0) {
+        incrementButton.disabled = true;
+      } else {
+        incrementButton.disabled = false;
+      }
+    }
+
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        if (progress < 100) {
+          progress++;
+          updateUI();
+          localStorage.setItem('progress', progress);
+        } else {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+      }, 5000); // 5 seconds
+    }
+
+    function toggleTheme() {
+      if (theme === 'dark') {
+        theme = 'light';
+        document.body.classList.remove('dark-theme');
+        document.body.classList.add('light-theme');
+        document.querySelector('.theme-button .sun').style.display = 'none';
+        document.querySelector('.theme-button .moon').style.display = 'block';
+      } else {
+        theme = 'dark';
+        document.body.classList.remove('light-theme');
+        document.body.classList.add('dark-theme');
+        document.querySelector('.theme-button .sun').style.display = 'block';
+        document.querySelector('.theme-button .moon').style.display = 'none';
+      }
+      localStorage.setItem('theme', theme);
+    }
+
+    updateUI();
+  </script>
+</body>
+</html>
