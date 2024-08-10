@@ -1,96 +1,5 @@
-<?php
-// Telegram Bot Token
-$botToken = "7422786173:AAGpLefCJHL642KTqwNN0IFMsZEUfeoVbZo";
-$website = "https://api.telegram.org/bot" . $botToken;
-
-// Файл для хранения балансов пользователей
-$balancesFile = "balances.json";
-
-// Функция для отправки сообщений через бота
-function sendMessage($chatId, $message, $keyboard = null) {
-    global $website;
-    
-    $postData = [
-        'chat_id' => $chatId,
-        'text' => $message,
-        'parse_mode' => 'HTML'
-    ];
-    
-    if ($keyboard) {
-        $postData['reply_markup'] = json_encode($keyboard);
-    }
-    
-    file_get_contents($website . "/sendMessage?" . http_build_query($postData));
-}
-
-// Функция для получения баланса пользователя
-function getUserBalance($chatId) {
-    global $balancesFile;
-    
-    if (!file_exists($balancesFile)) {
-        return 0;
-    }
-    
-    $balances = json_decode(file_get_contents($balancesFile), true);
-    
-    return $balances[$chatId] ?? 0;
-}
-
-// Функция для обновления баланса пользователя
-function updateUserBalance($chatId, $balance) {
-    global $balancesFile;
-    
-    if (file_exists($balancesFile)) {
-        $balances = json_decode(file_get_contents($balancesFile), true);
-    } else {
-        $balances = [];
-    }
-    
-    $balances[$chatId] = $balance;
-    
-    file_put_contents($balancesFile, json_encode($balances));
-}
-
-// Обработка входящих сообщений от Telegram
-$update = json_decode(file_get_contents("php://input"), true);
-
-if (isset($update['message'])) {
-    $message = $update['message'];
-    $chatId = $message['chat']['id'];
-    $text = $message['text'];
-    
-    if ($text === "/start") {
-        $balance = getUserBalance($chatId);
-        $message = "Привет, " . $message['chat']['first_name'] . "! Давай заработаем.\n\nНажми кнопку ниже, чтобы открыть Telegram Mini Apps.\n\nВаш баланс: " . $balance . "💰";
-        
-        $keyboard = [
-            'inline_keyboard' => [
-                [
-                    ['text' => 'Open Click', 'url' => 'https://matvick108.github.io/TG-APPS-Clicer/']
-                ]
-            ]
-        ];
-        
-        sendMessage($chatId, $message, $keyboard);
-    }
-}
-
-// Обработка запросов с сайта для обновления баланса
-if (isset($_GET['chat_id']) && isset($_GET['balance'])) {
-    $chatId = $_GET['chat_id'];
-    $balance = $_GET['balance'];
-    
-    // Обновление баланса пользователя
-    updateUserBalance($chatId, $balance);
-    
-    echo "Balance updated.";
-    exit;
-}
-
-?>
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=841, height=1530">
@@ -122,8 +31,7 @@ if (isset($_GET['chat_id']) && isset($_GET['balance'])) {
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(45deg, #ff9f43, #4CAF50, #3498db, #e74c3c);
-      background-size: 600% 600%;
+      background-size: 300% 300%;
       z-index: -1;
       animation: gradientAnimation 10s ease infinite;
     }
@@ -229,6 +137,10 @@ if (isset($_GET['chat_id']) && isset($_GET['balance'])) {
       background: rgba(0, 0, 0, 0.4);
     }
 
+    .dark-theme::before {
+      background: linear-gradient(45deg, #00008b, #8b0000, #000000);
+    }
+
     .dark-theme .button, .dark-theme .theme-button {
       background-color: #3498db;
       box-shadow: 0 4px 15px rgba(52, 152, 219, 0.5);
@@ -254,6 +166,10 @@ if (isset($_GET['chat_id']) && isset($_GET['balance'])) {
 
     .light-theme .container {
       background: rgba(255, 255, 255, 0.4);
+    }
+
+    .light-theme::before {
+      background: linear-gradient(45deg, #f1c40f, #ecf0f1, #1abc9c);
     }
 
     .light-theme .button, .light-theme .theme-button {
@@ -328,9 +244,6 @@ if (isset($_GET['chat_id']) && isset($_GET['balance'])) {
 
       localStorage.setItem('count', count);
       localStorage.setItem('progress', progress);
-
-      // Обновление баланса на сервере
-      updateBalanceOnServer(count);
     }
 
     function updateUI() {
@@ -383,13 +296,6 @@ if (isset($_GET['chat_id']) && isset($_GET['balance'])) {
         document.querySelector('.theme-button .moon').style.display = 'none';
       }
       localStorage.setItem('theme', theme);
-    }
-
-    function updateBalanceOnServer(newBalance) {
-      const chatId = new URLSearchParams(window.location.search).get('chat_id');
-      if (chatId) {
-        fetch(`?chat_id=${chatId}&balance=${newBalance}`);
-      }
     }
 
     updateUI();
